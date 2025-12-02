@@ -18,6 +18,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Write AoC input for 2025 Day 01
+        run: |
+          mkdir -p 2025/01/src/input
+          printf '%s' "${{ secrets.AOC_2025_01_INPUT }}" > 2025/01/src/input/rotations.txt
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
