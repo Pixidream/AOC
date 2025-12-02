@@ -57,26 +57,44 @@ fn parse_steps(bytes: &[u8]) -> Result<i32, &'static str> {
     Ok(acc)
 }
 
-fn compute_unbounded_pos(current: i32, rot: Rotation) -> i32 {
-    let delta = match rot.dir {
-        Direction::Left => -rot.steps,
-        Direction::Right => rot.steps,
+fn count_zero_passages(pos: i32, rotation: Rotation) -> u32 {
+    let delta = match rotation.dir {
+        Direction::Left => -rotation.steps,
+        Direction::Right => rotation.steps,
     };
 
-    current + delta
-}
+    let start = pos;
+    let end = pos + delta;
 
-fn count_zero_crossings(unbounded_pos: i32, final_pos: i32) -> i32 {
-    (unbounded_pos - final_pos).div_euclid(COUNTER_SIZE)
-}
+    if delta > 0 {
+        let first_zero = ((start / COUNTER_SIZE) + 1) * COUNTER_SIZE;
+        if first_zero > end {
+            0
+        } else {
+            (((end - first_zero) / COUNTER_SIZE) + 1) as u32
+        }
+    } else if delta < 0 {
+        let first_zero_at_or_below_start = (start / COUNTER_SIZE) * COUNTER_SIZE;
 
-fn apply_rotation(unbounded_pos: i32) -> i32 {
-    unbounded_pos.rem_euclid(COUNTER_SIZE)
+        let first_zero = if start % COUNTER_SIZE == 0 {
+            first_zero_at_or_below_start - COUNTER_SIZE
+        } else {
+            first_zero_at_or_below_start
+        };
+
+        if first_zero < end {
+            0
+        } else {
+            (((first_zero - end) / COUNTER_SIZE) + 1) as u32
+        }
+    } else {
+        0
+    }
 }
 
 pub fn solve<R: BufRead>(reader: R) -> Result<u32, String> {
-    let mut current_position: i32 = 50;
-    let mut password: u32 = 0;
+    let mut pos = 50;
+    let mut password = 0;
 
     for line_res in reader.lines() {
         let line = line_res.map_err(|e| e.to_string())?;
@@ -86,16 +104,16 @@ pub fn solve<R: BufRead>(reader: R) -> Result<u32, String> {
             continue;
         }
 
-        let previous_value_was_zero = current_position == 0;
         let rotation: Rotation = trimmed.parse()?;
-        let unbounded_pos = compute_unbounded_pos(current_position, rotation);
-        current_position = apply_rotation(unbounded_pos);
 
-        if current_position == 0 {
-            password += 1;
-        } else if !previous_value_was_zero {
-            password += count_zero_crossings(unbounded_pos, current_position).unsigned_abs();
-        }
+        let passages = count_zero_passages(pos, rotation);
+        password += passages;
+
+        let delta = match rotation.dir {
+            Direction::Left => -rotation.steps,
+            Direction::Right => rotation.steps,
+        };
+        pos = (pos + delta).rem_euclid(COUNTER_SIZE);
     }
 
     Ok(password)
@@ -105,15 +123,8 @@ pub fn solve<R: BufRead>(reader: R) -> Result<u32, String> {
 mod tests {
     use super::*;
     use std::io::Cursor;
-    const EDGE_CASE_INPUT: &str = r#"R25
-L10
-R85
-L200
-R310
-L1
-R99
-"#;
-    const TEST_INPUT_2: &str = r#"R50
+
+    const TEST_INPUT: &str = r#"R50
 L25
 R75
 L100
@@ -148,35 +159,8 @@ L1
     }
 
     #[test]
-    fn test_apply_rotation_simple_scenario() {
-        let start = 10;
-
-        let r1: Rotation = "R15".parse().unwrap();
-        let v1_unbounded = compute_unbounded_pos(start, r1);
-        let v1 = apply_rotation(v1_unbounded);
-        assert_eq!(v1, 25);
-
-        let r2: Rotation = "L5".parse().unwrap();
-        let v2_unbounded = compute_unbounded_pos(v1, r2);
-        let v2 = apply_rotation(v2_unbounded);
-        assert_eq!(v2, 20);
-
-        let r3: Rotation = "R90".parse().unwrap();
-        let v3_unbounded = compute_unbounded_pos(v2, r3);
-        let v3 = apply_rotation(v3_unbounded);
-        assert_eq!(v3, 10);
-    }
-
-    #[test]
-    fn test_edge_case_password_is_7() {
-        let cursor = Cursor::new(EDGE_CASE_INPUT);
-        let result = solve(cursor).unwrap();
-        assert_eq!(result, 7);
-    }
-
-    #[test]
-    fn test_custom_test_input_password_is_4() {
-        let cursor = Cursor::new(TEST_INPUT_2);
+    fn test_custom_input() {
+        let cursor = Cursor::new(TEST_INPUT);
         let result = solve(cursor).unwrap();
         assert_eq!(result, 4);
     }
@@ -187,5 +171,151 @@ L1
         let cursor = Cursor::new(input);
         let result = solve(cursor).unwrap();
         assert_eq!(result, 10);
+    }
+
+    #[test]
+    fn test_zero_passages_right() {
+        assert_eq!(
+            count_zero_passages(
+                50,
+                Rotation {
+                    dir: Direction::Right,
+                    steps: 60
+                }
+            ),
+            1
+        );
+        assert_eq!(
+            count_zero_passages(
+                50,
+                Rotation {
+                    dir: Direction::Right,
+                    steps: 50
+                }
+            ),
+            1
+        );
+        assert_eq!(
+            count_zero_passages(
+                50,
+                Rotation {
+                    dir: Direction::Right,
+                    steps: 30
+                }
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn test_zero_passages_left() {
+        assert_eq!(
+            count_zero_passages(
+                50,
+                Rotation {
+                    dir: Direction::Left,
+                    steps: 60
+                }
+            ),
+            1
+        );
+        assert_eq!(
+            count_zero_passages(
+                50,
+                Rotation {
+                    dir: Direction::Left,
+                    steps: 30
+                }
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn test_reddit_case_r50_l1() {
+        let input = "R50\nL1\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 1, "R50 then L1 should pass 0 once");
+    }
+
+    #[test]
+    fn test_reddit_case_l50_r50() {
+        let input = "L50\nR50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 1, "L50 then R50 should pass 0 once");
+    }
+
+    #[test]
+    fn test_reddit_case_l50_l50() {
+        let input = "L50\nL50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 1, "L50 then L50 should pass 0 once");
+    }
+
+    #[test]
+    fn test_reddit_case_r50_l50() {
+        let input = "R50\nL50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 1, "R50 then L50 should pass 0 once");
+    }
+
+    #[test]
+    fn test_reddit_case_r50_r50() {
+        let input = "R50\nR50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 1, "R50 then R50 should pass 0 once");
+    }
+
+    #[test]
+    fn test_reddit_case_l100_r100() {
+        let input = "L100\nR100\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "L100 then R100 should pass 0 twice");
+    }
+
+    #[test]
+    fn test_reddit_case_r100_l100() {
+        let input = "R100\nL100\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "R100 then L100 should pass 0 twice");
+    }
+
+    #[test]
+    fn test_reddit_case_l150_l50() {
+        let input = "L150\nL50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "L150 then L50 should pass 0 twice");
+    }
+
+    #[test]
+    fn test_reddit_case_l150_r50() {
+        let input = "L150\nR50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "L150 then R50 should pass 0 twice");
+    }
+
+    #[test]
+    fn test_reddit_case_r150_l50() {
+        let input = "R150\nL50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "R150 then L50 should pass 0 twice");
+    }
+
+    #[test]
+    fn test_reddit_case_r150_r50() {
+        let input = "R150\nR50\n";
+        let cursor = Cursor::new(input);
+        let result = solve(cursor).unwrap();
+        assert_eq!(result, 2, "R150 then R50 should pass 0 twice");
     }
 }

@@ -41,7 +41,7 @@ Using Rust for all challenges this year. Goals:
 
 ## 📈 Benchmarks
 
-> Benchmarks run with `cargo bench` (Criterion), on my local machine.
+> Benchmarks run with `cargo bench` (Criterion).
 
 <!-- bench-start -->
 | Bench                          | Input size            | Median time |
