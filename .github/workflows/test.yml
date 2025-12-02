@@ -1,0 +1,62 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache target directories
+        uses: actions/cache@v3
+        with:
+          path: "**/target"
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Find and test all Rust projects
+        run: |
+          echo "🎄 Running tests for Advent of Code solutions..."
+
+          # Find all directories containing Cargo.toml
+          find . -name "Cargo.toml" -not -path "*/target/*" | while read -r cargo_file; do
+            dir=$(dirname "$cargo_file")
+            echo ""
+            echo "📦 Testing: $dir"
+            echo "================================"
+
+            cd "$dir"
+
+            if cargo test --color=always; then
+              echo "✅ Tests passed for $dir"
+            else
+              echo "❌ Tests failed for $dir"
+              exit 1
+            fi
+
+            cd - > /dev/null
+          done
+
+          echo ""
+          echo "🎉 All tests passed!"
