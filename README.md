@@ -48,6 +48,7 @@ cargo test
 ## 📝 Notes
 
 These solutions represent my own attempts and learning process. They may not be optimal, but they work (hopefully)! 😄
+Feel free to open an issue or start a discussion if you have suggestions on how I can improve my solutions! 
 
 ## 🔗 Links
 
@@ -58,6 +59,6 @@ These solutions represent my own attempts and learning process. They may not be 
 
 ## Legal
 
-Advent of Code is a registered trademark in the United States. The design elements, language, styles, and concept of Advent of Code are all the sole property of Advent of Code and may not be replicated or used by any other person or entity without express written consent of Advent of Code. Copyright 2015-2025 Advent of Code. All rights reserved.
+Advent of Code is a registered trademark in the United States. The design elements, language, styles, and concept of Advent of Code are all the sole property of Advent of Code and may not be replicated or used by any other person or entity without express written consent of advent of code. copyright 2015-2025 advent of code. all rights reserved.
 
 You may link to or reference puzzles from Advent of Code in discussions, classes, source code, printed material, etc., even in commercial contexts. Advent of Code does not claim ownership or copyright over your solution implementation.
