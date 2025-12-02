@@ -3,4 +3,16 @@ name = "advent_01"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "advent_01"
+path = "src/lib.rs"
+
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.8"
+once_cell = "1.21"
+
+[[bench]]
+name = "solve_bench"
+harness = false
