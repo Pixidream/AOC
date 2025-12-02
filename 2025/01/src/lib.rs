@@ -57,38 +57,36 @@ fn parse_steps(bytes: &[u8]) -> Result<i32, &'static str> {
     Ok(acc)
 }
 
-fn count_zero_passages(pos: i32, rotation: Rotation) -> u32 {
-    let delta = match rotation.dir {
-        Direction::Left => -rotation.steps,
-        Direction::Right => rotation.steps,
+fn count_zeros_moving_right(start: i32, steps: i32) -> u32 {
+    let end = start + steps;
+    let first_zero = ((start / COUNTER_SIZE) + 1) * COUNTER_SIZE;
+
+    if first_zero > end {
+        0
+    } else {
+        (((end - first_zero) / COUNTER_SIZE) + 1) as u32
+    }
+}
+
+fn count_zeros_moving_left(start: i32, steps: i32) -> u32 {
+    let end = start - steps;
+    let first_zero = if start % COUNTER_SIZE == 0 {
+        start - COUNTER_SIZE
+    } else {
+        (start / COUNTER_SIZE) * COUNTER_SIZE
     };
 
-    let start = pos;
-    let end = pos + delta;
-
-    if delta > 0 {
-        let first_zero = ((start / COUNTER_SIZE) + 1) * COUNTER_SIZE;
-        if first_zero > end {
-            0
-        } else {
-            (((end - first_zero) / COUNTER_SIZE) + 1) as u32
-        }
-    } else if delta < 0 {
-        let first_zero_at_or_below_start = (start / COUNTER_SIZE) * COUNTER_SIZE;
-
-        let first_zero = if start % COUNTER_SIZE == 0 {
-            first_zero_at_or_below_start - COUNTER_SIZE
-        } else {
-            first_zero_at_or_below_start
-        };
-
-        if first_zero < end {
-            0
-        } else {
-            (((first_zero - end) / COUNTER_SIZE) + 1) as u32
-        }
-    } else {
+    if first_zero < end {
         0
+    } else {
+        (((first_zero - end) / COUNTER_SIZE) + 1) as u32
+    }
+}
+
+fn count_zero_passages(pos: i32, rotation: Rotation) -> u32 {
+    match rotation.dir {
+        Direction::Right => count_zeros_moving_right(pos, rotation.steps),
+        Direction::Left => count_zeros_moving_left(pos, rotation.steps),
     }
 }
 
