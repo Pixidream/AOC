@@ -13,7 +13,7 @@ Using Rust for all challenges this year. Goals:
 
 | Day | Part 1 | Part 2 | Notes |
 |-----|--------|--------|-------|
-| 01  | ⭐     | -     | [Day 1](#day-1) |
+| 01  | ⭐     | ⭐     | [Day 1](#day-1) |
 | 02  | -      | -      | |
 | 03  | -      | -      | |
 | 04  | -      | -      | |
@@ -54,6 +54,24 @@ Using Rust for all challenges this year. Goals:
 ## 📝 Personal Notes
 
 ### Day 1
+Day 1 was a surprisingly refreshing warm-up.
+The puzzle forced me to wake up parts of my brain I hadn’t used in a long time:
+
+Arithmetic that I hadn’t touched in years suddenly mattered again.
+
+I had to translate English to French more carefully — the phrase “left pointing at 0” almost sent me down the wrong path.
+
+The problem description was trickier than expected, and it made me pay real attention to wording, edge cases, and reasoning through examples.
+
+From a Rust perspective, this day was a great re-entry into the language:
+
+I revisited parsing patterns, error handling, FromStr, and numeric operations.
+
+I explored small but useful tools like rem_euclid, checked_add, and working with slices for manual parsing.
+
+I set up proper benches using Criterion, automated the results into my README.
+
+Overall, this day reminded me how fun it is to mix math, careful reading, and Rust’s rigor. A perfect “brain stretch” to start the month.
 
 ### Day 2
 
