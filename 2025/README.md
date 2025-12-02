@@ -46,9 +46,9 @@ Using Rust for all challenges this year. Goals:
 <!-- bench-start -->
 | Bench                          | Input size            | Median time |
 |--------------------------------|-----------------------|-------------|
-| `solve_on_example_input`      | small example         | 552.50 ns |
-| `solve_on_real_input`         | real puzzle input     | 271.33 µs |
-| `solve_on_big_synthetic_input` | 1,000,000 rotations   | 54.633 ms |
+| `solve_on_example_input`      | small example         | 523.06 ns |
+| `solve_on_real_input`         | real puzzle input     | 270.12 µs |
+| `solve_on_big_synthetic_input` | 1,000,000 rotations   | 50.199 ms |
 <!-- bench-end -->
 
 ## 📝 Personal Notes
