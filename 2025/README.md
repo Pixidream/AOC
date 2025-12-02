@@ -39,6 +39,18 @@ Using Rust for all challenges this year. Goals:
 | 24  | -      | -      | |
 | 25  | -      | -      | |
 
+## 📈 Benchmarks
+
+> Benchmarks run with `cargo bench` (Criterion), on my local machine.
+
+<!-- bench-start -->
+| Bench                          | Input size            | Median time |
+|--------------------------------|-----------------------|-------------|
+| `solve_on_example_input`      | small example         | 292.72 ns |
+| `solve_on_real_input`         | real puzzle input     | 160.02 µs |
+| `solve_on_big_synthetic_input` | 1,000,000 rotations   | 29.332 ms |
+<!-- bench-end -->
+
 ## 📝 Personal Notes
 
 ### Day 1

@@ -1,0 +1,59 @@
+name: Run Benchmarks
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  bench_2025_01:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            2025/01/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('2025/01/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Run Day 01 2025 benchmarks and update README
+        run: |
+          chmod +x scripts/benchmark_2025_01.sh
+          ./scripts/benchmark_2025_01.sh
+
+      - name: Commit and push benchmark results if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+
+          # On vérifie s'il y a des changements
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          echo "Changes detected, committing benchmark results..."
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add 2025/README.md 2025/bench-output_2025_01.txt
+
+          git commit -m "chore: update benchmark [ci skip]"
+          git push
