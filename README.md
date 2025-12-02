@@ -2,7 +2,7 @@
 
 This repository contains my attempts at solving [Advent of Code](https://adventofcode.com/) challenges, starting from 2025.
 
-> **Note:** This README was generated with AI assistance. All code solutions are my own work.
+> **Note:** This README was generated with AI assistance. Github workflows as well. All code solutions are my own work. I don't want to spend time with anything not related to AOC.
 
 ## 📅 Years
 
